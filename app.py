@@ -32,53 +32,27 @@ books = [
     },
 ]
 
-# Route for handling the login page logic
+# Routes at present only handling http GETs
 
 
-@app.route("/hello")
-def index():
-    return render_template("hello.html", title="Welcome", username=username)
-
-
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def redirect_get():
     if request.method == "GET":
-        return redirect("static/register.html")
-    else:
-        # let them have books
-        return redirect("/books")
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    error = None
-    if request.method == "POST":
-        if request.form["username"] != "test" or request.form["password"] != "test":
-            error = "Invalid Credentials. Please try again."
-        else:
-            session["username"] = request.form["username"]
-            return render_template(
-                "index.html", title="books", username=session["username"], books=books
-            )
-    return redirect("/")
-
-
-@app.route("/books", methods=["GET", "POST"])
-def book():
-    username = session["username"]
-    if request.method == "POST":
-        new_book = request.form["book"]  # expects pure json with quotes everywheree
-        myjson = json.loads(new_book)
-        books.append(myjson)
-        return jsonify(books)
-
-    elif request.method == "GET":
-        username = session["username"]
         return render_template(
-            "books.html", books=books, title="books", username=session["username"]
+            "index.html", title="books", books=books
         )
+
+
+@app.route("/books", methods=["GET"])
+def book():
+    if request.method == "POST":  # just send user back to index template
+        return render_template(
+            "index.html", title="books", books=books
+        )
+    elif request.method == "GET":
+        return jsonify(books)
     else:
-        return 400
+        return 400  # Bad Request Response
 
 
 if __name__ == "__main__":
